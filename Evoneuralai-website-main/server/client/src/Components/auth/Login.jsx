@@ -47,14 +47,14 @@ export const Login = () => {
       icon: FaUserGraduate,
       title: 'Student',
       description: 'Access lessons and complete interactive quizzes',
-      gradient: 'from-emerald-500 to-teal-600',
+      gradient: 'from-emerald-400 to-teal-500',
     },
     {
       id: 'teacher',
       icon: FaChalkboardTeacher,
       title: 'Teacher',
       description: 'Create and manage educational content',
-      gradient: 'from-blue-500 to-indigo-600',
+      gradient: 'from-cyan-500 to-sky-600',
     },
   ];
 
@@ -63,7 +63,7 @@ export const Login = () => {
     icon: FaSchool,
     title: 'School Administrator',
     description: 'Manage school-wide content and teachers',
-    gradient: 'from-purple-500 to-violet-600',
+    gradient: 'from-amber-400 to-orange-500',
   };
 
   useEffect(() => {

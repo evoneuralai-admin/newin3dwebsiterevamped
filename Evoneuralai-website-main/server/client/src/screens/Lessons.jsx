@@ -65,22 +65,22 @@ const GUEST_DEMO_CHAPTERS_LIMIT = 200; // Max chapters to scan for demo topics (
 const ContentBadges = memo(({ chapter }) => (
   <div className="flex items-center gap-1.5">
     {chapter.hasSkybox && (
-      <div className="w-6 h-6 rounded bg-card border border-border flex items-center justify-center" title="360° Skybox">
+      <div className="flex h-7 w-7 items-center justify-center rounded-xl border border-border/80 bg-card/80 shadow-card" title="360° Skybox">
         <Sparkles className="w-3 h-3 text-primary" />
       </div>
     )}
     {chapter.hasScript && (
-      <div className="w-6 h-6 rounded bg-card border border-border flex items-center justify-center" title="Voice Script">
+      <div className="flex h-7 w-7 items-center justify-center rounded-xl border border-border/80 bg-card/80 shadow-card" title="Voice Script">
         <Volume2 className="w-3 h-3 text-primary" />
       </div>
     )}
     {chapter.hasAssets && (
-      <div className="w-6 h-6 rounded bg-card border border-border flex items-center justify-center" title="3D Assets">
+      <div className="flex h-7 w-7 items-center justify-center rounded-xl border border-border/80 bg-card/80 shadow-card" title="3D Assets">
         <Box className="w-3 h-3 text-primary" />
       </div>
     )}
     {chapter.hasMcqs && (
-      <div className="w-6 h-6 rounded bg-card border border-border flex items-center justify-center" title="Quiz Questions">
+      <div className="flex h-7 w-7 items-center justify-center rounded-xl border border-border/80 bg-card/80 shadow-card" title="Quiz Questions">
         <HelpCircle className="w-3 h-3 text-primary" />
       </div>
     )}
@@ -105,9 +105,9 @@ const LessonCard = memo(({ lessonItem, completedLessons, onOpenModal, getThumbna
 
   return (
     <div
-      className={`h-full flex flex-col bg-card rounded-2xl border overflow-hidden border-border relative
+      className={`surface-card h-full flex flex-col overflow-hidden rounded-[1.75rem] border border-border/70 bg-card/85 relative
                  transition-all duration-300 group
-                 ${isLockedForGuest ? 'cursor-default' : 'cursor-pointer hover:shadow-lg hover:border-primary/50 hover:shadow-primary/10'}`}
+                 ${isLockedForGuest ? 'cursor-default' : 'cursor-pointer hover:-translate-y-1 hover:border-primary/35 hover:shadow-card-hover'}`}
       onClick={() => !isLockedForGuest && onOpenModal(chapter, topic)}
     >
       {isLockedForGuest && (
@@ -129,7 +129,7 @@ const LessonCard = memo(({ lessonItem, completedLessons, onOpenModal, getThumbna
       )}
       <div className={isLockedForGuest ? 'pointer-events-none select-none blur-sm' : ''}>
       {/* Thumbnail - fixed aspect so card height is consistent */}
-      <div className="relative aspect-video w-full flex-shrink-0 overflow-hidden bg-muted">
+      <div className="relative aspect-video w-full flex-shrink-0 overflow-hidden bg-muted/60">
         {thumbnail ? (
           <img
             src={thumbnail}
@@ -150,12 +150,12 @@ const LessonCard = memo(({ lessonItem, completedLessons, onOpenModal, getThumbna
         {/* Badges: solid white text on dark pill — curriculum, class, chapter */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-2 left-2 flex flex-wrap gap-1.5">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-black/80 border border-white/20">
+            <span className="inline-flex items-center rounded-full border border-white/10 bg-slate-950/70 px-2.5 py-1 shadow-card backdrop-blur-md">
               <span className="text-[10px] font-bold text-white antialiased">
                 {chapterInfo.curriculum || '—'}
               </span>
             </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-black/80 border border-white/20">
+            <span className="inline-flex items-center rounded-full border border-white/10 bg-slate-950/70 px-2.5 py-1 shadow-card backdrop-blur-md">
               <span className="text-[10px] font-bold text-white antialiased">
                 Class {chapterInfo.class ?? '—'}
               </span>
@@ -163,14 +163,14 @@ const LessonCard = memo(({ lessonItem, completedLessons, onOpenModal, getThumbna
           </div>
           <div className="absolute top-2 right-2 flex items-center gap-1.5">
             {isCompleted && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/80 border border-white/20">
+              <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-slate-950/70 px-2.5 py-1 shadow-card backdrop-blur-md">
                 <Trophy className="w-3 h-3 text-white antialiased" />
                 <span className="text-[10px] font-bold text-white antialiased">
                   {quizScore?.percentage != null ? `${quizScore.percentage}%` : 'Done'}
                 </span>
               </span>
             )}
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-black/80 border border-white/20">
+            <span className="inline-flex items-center rounded-full border border-white/10 bg-slate-950/70 px-2.5 py-1 shadow-card backdrop-blur-md">
               <span className="text-[10px] font-bold text-white antialiased">
                 Ch {chapterInfo.chapterNumber ?? '—'}
               </span>
@@ -178,15 +178,15 @@ const LessonCard = memo(({ lessonItem, completedLessons, onOpenModal, getThumbna
           </div>
         </div>
         
-        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-          <div className="w-14 h-14 rounded-full flex items-center justify-center shadow-lg bg-primary text-primary-foreground">
+        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/40 opacity-0 transition-opacity duration-300 pointer-events-none group-hover:opacity-100">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-glow">
             <Play className="w-7 h-7 ml-0.5" />
           </div>
         </div>
       </div>
       
       {/* Content - fixed min height so all cards align */}
-      <div className="flex flex-col flex-1 min-h-0 p-3">
+      <div className="flex min-h-0 flex-1 flex-col p-4">
         <div className="flex items-start gap-2 min-h-0">
           <h3 className="text-sm font-semibold line-clamp-2 transition-colors flex-1 text-foreground group-hover:text-primary">
             {topicName}
@@ -197,7 +197,7 @@ const LessonCard = memo(({ lessonItem, completedLessons, onOpenModal, getThumbna
         </div>
         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{getSubjectNameByLanguage(chapterInfo.subject || '', selectedLanguage)}</p>
         <p className="text-[10px] text-muted-foreground mb-1 line-clamp-1">{chapterName}</p>
-        <div className="flex items-center justify-between mt-auto pt-1 gap-2">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-2">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-[10px] text-muted-foreground">Topic {topic.topic_priority ?? '?'}</span>
             {isApproved ? (
@@ -331,7 +331,7 @@ const LessonListItem = memo(({ lessonItem, completedLessons, onOpenModal, select
   const learningObjective = getLearningObjectiveByLanguage(topic, selectedLanguage) || topic.learning_objective;
 
   return (
-    <Card className={`rounded-xl overflow-hidden border-border relative ${isCompleted ? 'border-primary/40' : ''} ${isLockedForGuest ? 'blur-sm' : ''}`}>
+    <Card className={`relative overflow-hidden rounded-[1.5rem] ${isCompleted ? 'border-primary/40' : ''} ${isLockedForGuest ? 'blur-sm' : ''}`}>
       {isLockedForGuest && (
         <div
           className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-md p-4 pointer-events-auto text-center space-y-3 rounded-xl"
@@ -350,10 +350,10 @@ const LessonListItem = memo(({ lessonItem, completedLessons, onOpenModal, select
         </div>
       )}
       <div 
-        className={`flex items-center gap-4 p-4 transition-colors ${isLockedForGuest ? 'pointer-events-none' : 'cursor-pointer hover:bg-muted/50'}`}
+        className={`flex items-center gap-4 p-5 transition-colors ${isLockedForGuest ? 'pointer-events-none' : 'cursor-pointer hover:bg-accent/30'}`}
         onClick={() => !isLockedForGuest && onOpenModal(chapter, topic)}
       >
-        <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-primary/10 border border-border">
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-border/80 bg-primary/10 shadow-card">
           {isCompleted ? (
             <Trophy className="w-5 h-5 text-primary" />
           ) : (
@@ -2158,26 +2158,27 @@ const Lessons = ({ setBackgroundSkybox }) => {
 
   // MAIN RENDER
   return (
-    <div className="min-h-screen bg-background pt-24 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background pt-24 pb-10">
+      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-6 border-b border-border pb-6">
-          <div className="flex items-center justify-between">
+        <div className="surface-card mb-6 rounded-[2rem] border border-border/70 p-5 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-border flex items-center justify-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-border/80 bg-primary/10 shadow-card">
                 <GraduationCap className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Available Lessons</h1>
-                <p className="text-xs text-muted-foreground">Click any lesson to start learning</p>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Learning workspace</p>
+                <h1 className="font-display text-2xl font-semibold text-foreground">Available Lessons</h1>
+                <p className="text-sm text-muted-foreground">Browse immersive lessons and launch into the next concept faster.</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-1 p-1 bg-card rounded-lg border border-border">
+            <div className="flex items-center gap-1 rounded-2xl border border-border/80 bg-card/80 p-1.5 shadow-card">
               <Button
                 variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
                 size="icon"
-                className="h-8 w-8"
+                className="h-9 w-9"
                 onClick={() => setViewMode('grid')}
               >
                 <Grid3X3 className="w-4 h-4" />
@@ -2185,7 +2186,7 @@ const Lessons = ({ setBackgroundSkybox }) => {
               <Button
                 variant={viewMode === 'list' ? 'secondary' : 'ghost'}
                 size="icon"
-                className="h-8 w-8"
+                className="h-9 w-9"
                 onClick={() => setViewMode('list')}
               >
                 <List className="w-4 h-4" />

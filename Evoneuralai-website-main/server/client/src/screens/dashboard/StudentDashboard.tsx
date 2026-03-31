@@ -356,22 +356,23 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 pb-6 border-b border-border">
+        <div className="surface-card mb-8 rounded-[2rem] border border-border/70 p-6">
           <div className="flex items-start justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-primary/10 border border-border flex items-center justify-center">
+              <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] border border-border/80 bg-primary/10 shadow-card">
                 <FaGraduationCap className="text-primary text-xl" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold mb-1" style={in3dFontStyle}>
+                <p className="mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Student workspace</p>
+                <h1 className="mb-1 text-3xl font-bold" style={in3dFontStyle}>
                   <span className="text-foreground">In</span>
                   <span className="text-primary">3D.ai</span>
                   <TrademarkSymbol />
                 </h1>
-                <h2 className="text-xl font-semibold text-foreground">My Dashboard</h2>
-                <p className="text-muted-foreground text-sm mt-0.5">
+                <h2 className="font-display text-2xl font-semibold text-foreground">My Dashboard</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
                   {isGuest ? 'Exploring as guest — try one lesson, then sign up to unlock more' : 'Track your learning progress and performance'}
                 </p>
               </div>

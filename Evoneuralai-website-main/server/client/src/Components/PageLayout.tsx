@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { motion } from 'framer-motion';
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -14,10 +15,15 @@ interface PageLayoutProps {
  */
 export function PageLayout({ children, className = '', contentClassName = '' }: PageLayoutProps) {
   return (
-    <div className={`min-h-screen bg-background pt-24 pb-8 ${className}`}>
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${contentClassName}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+      className={`min-h-screen bg-background pt-24 pb-10 sm:pb-12 ${className}`}
+    >
+      <div className={`mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-8 ${contentClassName}`}>
         {children}
       </div>
-    </div>
+    </motion.div>
   );
 }

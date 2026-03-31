@@ -18,31 +18,31 @@ interface AnimatedSectionProps {
 
 const animations: Record<AnimationType, Variants> = {
   fadeUp: {
-    hidden: { opacity: 0, y: 40 },
+    hidden: { opacity: 0, y: 28 },
     visible: { opacity: 1, y: 0 }
   },
   fadeDown: {
-    hidden: { opacity: 0, y: -40 },
+    hidden: { opacity: 0, y: -28 },
     visible: { opacity: 1, y: 0 }
   },
   fadeLeft: {
-    hidden: { opacity: 0, x: -40 },
+    hidden: { opacity: 0, x: -28 },
     visible: { opacity: 1, x: 0 }
   },
   fadeRight: {
-    hidden: { opacity: 0, x: 40 },
+    hidden: { opacity: 0, x: 28 },
     visible: { opacity: 1, x: 0 }
   },
   scale: {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, scale: 0.96 },
     visible: { opacity: 1, scale: 1 }
   },
   blur: {
-    hidden: { opacity: 0, filter: 'blur(10px)' },
+    hidden: { opacity: 0, filter: 'blur(12px)' },
     visible: { opacity: 1, filter: 'blur(0px)' }
   },
   slideUp: {
-    hidden: { opacity: 0, y: 60 },
+    hidden: { opacity: 0, y: 36 },
     visible: { opacity: 1, y: 0 }
   },
   none: {
@@ -63,7 +63,7 @@ const AnimatedSection = ({
   children,
   animation = 'fadeUp',
   delay = 0,
-  duration = 0.8,
+  duration = 0.24,
   className = '',
   style,
   once = true,
@@ -81,7 +81,7 @@ const AnimatedSection = ({
       transition={{
         duration,
         delay,
-        ease: [0.25, 0.4, 0.25, 1]
+        ease: [0.22, 1, 0.36, 1]
       }}
       className={className}
       style={style}
@@ -109,7 +109,7 @@ export const AnimatedList = ({
   children,
   animation = 'fadeUp',
   staggerDelay = 0.1,
-  duration = 0.6,
+  duration = 0.22,
   className = '',
   itemClassName = '',
   once = true,
@@ -139,7 +139,7 @@ export const AnimatedList = ({
         <motion.div
           key={index}
           variants={animations[animation]}
-          transition={{ duration, ease: [0.25, 0.4, 0.25, 1] }}
+          transition={{ duration, ease: [0.22, 1, 0.36, 1] }}
           className={itemClassName}
         >
           {child}
@@ -155,14 +155,13 @@ export const AnimatedList = ({
 export const ScrollProgressBar = () => {
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 via-violet-500 to-fuchsia-500 origin-left z-[100]"
+      className="fixed left-0 right-0 top-0 z-[100] h-1 origin-left bg-gradient-to-r from-primary via-cyan-300 to-[rgba(255,192,84,0.95)]"
       style={{ scaleX: 0 }}
       initial={{ scaleX: 0 }}
       animate={{ scaleX: 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.24 }}
     />
   );
 };
 
 export default AnimatedSection;
-

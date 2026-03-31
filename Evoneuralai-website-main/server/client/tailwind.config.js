@@ -6,6 +6,18 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: "1rem",
+        sm: "1.5rem",
+        lg: "2rem",
+        xl: "2.5rem",
+      },
+      screens: {
+        "2xl": "1440px",
+      },
+    },
   	extend: {
   		borderRadius: {
   			lg: 'var(--radius)',
@@ -65,12 +77,15 @@ export default {
   			'smooth'
   		],
   		boxShadow: {
-  			'card': '0 1px 3px rgba(0, 0, 0, 0.12)',
-  			'card-hover': '0 4px 12px rgba(0, 0, 0, 0.15)',
-  			'panel': '0 8px 24px rgba(0, 0, 0, 0.2)'
+  			'card': '0 18px 48px rgba(2, 8, 23, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.04)',
+  			'card-hover': '0 24px 64px rgba(2, 8, 23, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06)',
+  			'panel': '0 28px 80px rgba(2, 8, 23, 0.38)',
+  			'glow': '0 0 0 1px rgba(103, 232, 249, 0.18), 0 24px 80px rgba(34, 211, 238, 0.16)',
+  			'inset-soft': 'inset 0 1px 0 rgba(255,255,255,0.06), inset 0 -1px 0 rgba(255,255,255,0.02)'
   		},
   		fontFamily: {
   			display: [
+  				'Rejouice Headline',
   				'Outfit',
   				'sans-serif'
   			],
@@ -90,9 +105,36 @@ export default {
   			'gradient-x': 'gradient-x 15s ease infinite',
   			pulse: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
   			shimmer: 'shimmer 2s linear infinite',
-  			soundwave: 'soundwave 0.8s ease-in-out infinite'
+  			soundwave: 'soundwave 0.8s ease-in-out infinite',
+  			'float-slow': 'floatSlow 10s ease-in-out infinite',
+  			'aurora': 'aurora 18s ease infinite',
+  			'soft-pulse': 'softPulse 2.8s ease-in-out infinite'
   		},
   		keyframes: {
+  			floatSlow: {
+  				'0%, 100%': {
+  					transform: 'translateY(0px)'
+  				},
+  				'50%': {
+  					transform: 'translateY(-10px)'
+  				}
+  			},
+  			aurora: {
+  				'0%, 100%': {
+  					backgroundPosition: '0% 50%'
+  				},
+  				'50%': {
+  					backgroundPosition: '100% 50%'
+  				}
+  			},
+  			softPulse: {
+  				'0%, 100%': {
+  					opacity: '0.85'
+  				},
+  				'50%': {
+  					opacity: '1'
+  				}
+  			},
   			soundwave: {
   				'0%, 100%': {
   					transform: 'scaleY(0.5)',

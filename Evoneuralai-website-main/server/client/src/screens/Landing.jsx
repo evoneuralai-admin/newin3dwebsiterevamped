@@ -35,13 +35,13 @@ const features = [
     icon: FaPalette,
     title: "Style Variety",
     description: "Choose from animation, gaming, comics, and VFX artistic styles",
-    gradient: "from-violet-500 to-purple-600"
+    gradient: "from-cyan-500 to-sky-600"
   },
   {
     icon: FaCode,
     title: "Developer Ready",
     description: "Perfect for game development, AR/VR, and immersive experiences",
-    gradient: "from-sky-500 to-blue-600"
+    gradient: "from-amber-400 to-orange-500"
   }
 ];
 
@@ -84,7 +84,7 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#030303] text-white overflow-x-hidden font-body selection:bg-sky-500/30 selection:text-white pt-10">
+    <div className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top,_rgba(33,212,253,0.12),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(255,192,84,0.12),_transparent_24%),#060b16] pt-10 font-body text-white selection:bg-primary/30 selection:text-white">
       <HeroGeometric
         badge="Powered by Evoneural AI"
         title1="In3D.ai crafts worlds"
@@ -102,9 +102,9 @@ const Landing = () => {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-sky-500 via-violet-500 to-fuchsia-500" />
-            <div className="absolute inset-0 bg-gradient-to-r from-sky-400 via-violet-400 to-fuchsia-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="absolute inset-0 rounded-2xl shadow-[0_0_45px_rgba(139,92,246,0.4)] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-cyan-300 to-[rgba(255,192,84,0.95)]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-300 via-primary to-[rgba(255,192,84,0.95)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="absolute inset-0 rounded-2xl opacity-0 shadow-[0_0_45px_rgba(33,212,253,0.32)] transition-opacity duration-300 group-hover:opacity-100" />
             <span className="relative flex items-center gap-2 text-white">
               Get Started Free
               <FaArrowRight className="text-sm" />
@@ -119,15 +119,15 @@ const Landing = () => {
           className="mt-8 flex flex-wrap justify-center items-center gap-6 text-xs text-white/60 tracking-[0.3em]"
         >
           <div className="flex items-center gap-2">
-            <FaShieldAlt className="text-emerald-400" />
+            <FaShieldAlt className="text-emerald-300" />
             <span>Secure by design</span>
           </div>
           <div className="flex items-center gap-2">
-            <FaGlobe className="text-sky-400" />
+            <FaGlobe className="text-cyan-300" />
             <span>Global CDN</span>
           </div>
           <div className="flex items-center gap-2">
-            <FaStar className="text-amber-400" />
+            <FaStar className="text-[rgba(255,192,84,0.95)]" />
             <span>99.9% uptime</span>
           </div>
         </motion.div>
@@ -142,7 +142,7 @@ const Landing = () => {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <span className="inline-flex items-center justify-center px-4 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-300 text-sm font-medium mb-4">
+            <span className="mb-4 inline-flex items-center justify-center rounded-full border border-primary/20 bg-primary/10 px-4 py-1 text-sm font-medium text-primary">
               Powering 3D narratives
             </span>
             <h2 className="text-4xl sm:text-5xl font-display font-bold mb-4 text-white">
@@ -161,11 +161,11 @@ const Landing = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="group relative rounded-3xl border bg-white/5 border-white/10 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all duration-500"
+                className="group relative rounded-3xl border border-white/10 bg-white/5 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.45)] transition-all duration-500"
                 onMouseEnter={() => setActiveFeature(index)}
               >
                 <div className={`absolute inset-0 rounded-3xl pointer-events-none transition-opacity duration-500 ${activeFeature === index ? 'opacity-100' : 'opacity-0'}`}>
-                  <div className="absolute inset-0 bg-gradient-to-br from-sky-500/20 to-fuchsia-500/20 blur-3xl" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-[rgba(255,192,84,0.16)] blur-3xl" />
                 </div>
                 <div className="relative z-10 flex flex-col gap-4">
                   <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center text-white shadow-lg`}>
@@ -173,7 +173,7 @@ const Landing = () => {
                   </div>
                   <h3 className="text-2xl font-semibold">{feature.title}</h3>
                   <p className="text-white/70 leading-relaxed">{feature.description}</p>
-                  <div className="flex items-center gap-2 text-sky-400 text-sm font-semibold">
+                  <div className="flex items-center gap-2 text-primary text-sm font-semibold">
                     <span>Learn more</span>
                     <FaArrowRight className="text-[0.7rem]" />
                   </div>
@@ -191,9 +191,9 @@ const Landing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="rounded-[2.25rem] border border-white/10 bg-gradient-to-br from-white/5 via-white/0 to-white/5 backdrop-blur-3xl p-12 relative overflow-hidden shadow-[0_50px_120px_rgba(13,110,253,0.25)]"
+            className="relative overflow-hidden rounded-[2.25rem] border border-white/10 bg-gradient-to-br from-white/5 via-white/0 to-white/5 p-12 shadow-[0_50px_120px_rgba(12,25,43,0.45)] backdrop-blur-3xl"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.2),_transparent_55%)] pointer-events-none" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(33,212,253,0.2),_transparent_55%)]" />
             <div className="relative grid grid-cols-2 lg:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
                 <motion.div
@@ -205,9 +205,9 @@ const Landing = () => {
                   className="text-center relative z-10"
                 >
                   <div className="mx-auto w-12 h-12 rounded-2xl bg-white/5 border border-white/10 mb-3 flex items-center justify-center">
-                    <stat.icon className="text-sky-400" />
+                    <stat.icon className="text-primary" />
                   </div>
-                  <div className="text-4xl font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-sky-300 mb-2">
+                  <div className="mb-2 bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-4xl font-display font-bold text-transparent">
                     {stat.number}
                   </div>
                   <div className="text-white/60 uppercase tracking-[0.3em] text-xs">
@@ -227,9 +227,9 @@ const Landing = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="relative rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-3xl p-12 text-center overflow-hidden shadow-[0_40px_80px_rgba(15,118,255,0.25)]"
+            className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-12 text-center shadow-[0_40px_80px_rgba(12,25,43,0.45)] backdrop-blur-3xl"
           >
-            <div className="absolute inset-0 bg-gradient-to-tr from-sky-500/20 via-transparent to-fuchsia-500/10 pointer-events-none" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-[rgba(255,192,84,0.12)]" />
             <h2 className="font-display text-4xl font-bold mb-6 text-white relative z-10">
               Ready to create the worlds you imagine?
             </h2>
@@ -239,7 +239,7 @@ const Landing = () => {
             <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={handleGetStarted}
-                className="px-10 py-3 rounded-full bg-gradient-to-r from-sky-500 to-violet-500 font-semibold text-white shadow-[0_20px_60px_rgba(14,165,233,0.45)] transition-transform duration-300 hover:-translate-y-0.5"
+                className="rounded-full bg-gradient-to-r from-primary to-[rgba(255,192,84,0.95)] px-10 py-3 font-semibold text-white shadow-[0_20px_60px_rgba(33,212,253,0.32)] transition-transform duration-300 hover:-translate-y-0.5"
               >
                 Start creating now
               </button>
@@ -256,7 +256,7 @@ const Landing = () => {
       <footer className="relative z-10 py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-500 to-fuchsia-500 flex items-center justify-center shadow-[0_0_20px_rgba(14,165,233,0.3)]">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-[rgba(255,192,84,0.95)] shadow-[0_0_20px_rgba(33,212,253,0.28)]">
               <FaCube className="text-white text-xl" />
             </div>
             <div>

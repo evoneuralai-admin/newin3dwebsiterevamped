@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { Button as AriaButton, Menu, MenuItem, MenuTrigger, Popover } from 'react-aria-components';
 import {
   FaBookOpen,
   FaFlask,
@@ -38,13 +39,13 @@ import { Button } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { SchoolCodeBlock } from './SchoolCodeBlock';
 import { FaCopy } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { canEditLesson, hasMinimumRole } from '../utils/rbac';
+import { cn } from '@/lib/utils';
 
 interface NavItem {
   path: string;
@@ -280,10 +281,10 @@ const Sidebar = () => {
   }) => {
     const expanded = forceExpanded || !isCollapsed;
     const navLinkClass = (active: boolean) =>
-      `flex items-center gap-2 px-2 py-2 rounded-lg text-sm font-medium transition-colors group relative w-full ${
+      `group relative flex w-full items-center gap-3 rounded-2xl border px-3 py-3 text-sm font-medium transition-all duration-200 ${
         active
-          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-          : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+          ? 'border-primary/25 bg-primary/12 text-sidebar-foreground shadow-card'
+          : 'border-transparent text-sidebar-foreground/80 hover:border-sidebar-border hover:bg-sidebar-accent/70 hover:text-sidebar-foreground'
       } ${!expanded ? 'justify-center px-0' : ''}`;
 
     const renderNavLink = (
@@ -305,7 +306,7 @@ const Sidebar = () => {
             <Icon className="h-4 w-4 shrink-0" />
             {expanded && <span className="truncate">{label}</span>}
             {!expanded && (
-              <span className="absolute left-full z-50 ml-2 rounded-md border border-sidebar-border bg-popover px-2 py-1.5 text-xs text-popover-foreground shadow-md opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none whitespace-nowrap">
+              <span className="pointer-events-none absolute left-full z-50 ml-3 whitespace-nowrap rounded-xl border border-sidebar-border bg-popover/95 px-3 py-2 text-xs text-popover-foreground shadow-panel opacity-0 transition-opacity group-hover:opacity-100">
                 {label}
               </span>
             )}
@@ -317,7 +318,7 @@ const Sidebar = () => {
           <Icon className="h-4 w-4 shrink-0" />
           {expanded && <span className="truncate">{label}</span>}
           {!expanded && (
-            <span className="absolute left-full z-50 ml-2 rounded-md border border-sidebar-border bg-popover px-2 py-1.5 text-xs text-popover-foreground shadow-md opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none whitespace-nowrap">
+            <span className="pointer-events-none absolute left-full z-50 ml-3 whitespace-nowrap rounded-xl border border-sidebar-border bg-popover/95 px-3 py-2 text-xs text-popover-foreground shadow-panel opacity-0 transition-opacity group-hover:opacity-100">
               {label}
             </span>
           )}
@@ -327,40 +328,53 @@ const Sidebar = () => {
 
     return (
       <div className="flex h-full flex-col">
-        <div className="flex h-14 shrink-0 items-center border-b border-sidebar-border px-2">
+        <div className="flex h-20 shrink-0 items-center gap-2 border-b border-sidebar-border/80 px-3">
           <Link
             to={isAdminOrSuperadmin ? '/studio/content' : isAssociate ? '/dashboard/associate' : '/lessons'}
-            className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-sidebar-accent"
+            className={cn(
+              'flex min-w-0 items-center gap-3 rounded-2xl border border-transparent px-2.5 py-2 transition-colors hover:border-sidebar-border hover:bg-sidebar-accent/60',
+              expanded ? 'flex-1' : 'justify-center'
+            )}
           >
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-              <FaGraduationCap className="h-4 w-4" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-sidebar-border/80 bg-sidebar-primary/15 text-sidebar-primary shadow-card">
+              <FaGraduationCap className="h-5 w-5" />
             </div>
             {expanded && (
-              <span className="font-semibold leading-none" style={in3dFontStyle}>
-                <span className="text-sidebar-foreground">In3D</span>
-                <span className="text-sidebar-primary">.ai</span>
-                <TrademarkSymbol className="ml-0.5 inline" />
-              </span>
+              <div className="min-w-0">
+                <span className="block truncate font-semibold leading-none" style={in3dFontStyle}>
+                  <span className="text-sidebar-foreground">In3D</span>
+                  <span className="text-sidebar-primary">.ai</span>
+                  <TrademarkSymbol className="ml-0.5 inline" />
+                </span>
+                <span className="mt-1 block text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+                  AI workspace
+                </span>
+              </div>
             )}
           </Link>
+          {expanded && (
+            <div className="rounded-full border border-sidebar-border bg-sidebar-accent/60 px-2.5 py-1 text-[10px] uppercase tracking-[0.24em] text-muted-foreground">
+              Live
+            </div>
+          )}
         </div>
         {(isSchool || isTeacher) && schoolCode && (
-          <div className="shrink-0 border-b border-sidebar-border px-2 py-2">
+          <div className="shrink-0 border-b border-sidebar-border/80 px-3 py-3">
             {expanded ? (
               <SchoolCodeBlock code={schoolCode} variant="sidebar" />
             ) : (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-sidebar-foreground hover:bg-sidebar-accent"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-sidebar-border/80 bg-sidebar-accent/40 text-sidebar-foreground transition-colors hover:bg-sidebar-accent"
                     title="School code"
                     aria-label="Show school code"
                   >
                     <FaSchool className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" side="right" className="min-w-[200px] p-3">
-                  <p className="text-xs font-medium text-muted-foreground mb-1.5">School code</p>
+                <DropdownMenuContent align="start" side="right" className="min-w-[220px] rounded-2xl border-border/80 bg-card/95 p-3 shadow-panel backdrop-blur-2xl">
+                  <p className="mb-1.5 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">School code</p>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm font-semibold tracking-wider">{schoolCode}</span>
                     <Button
@@ -383,8 +397,17 @@ const Sidebar = () => {
             )}
           </div>
         )}
-        <nav className="flex-1 overflow-y-auto py-2 px-2">
-          <ul className="space-y-0.5">
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
+          {expanded && (
+            <div className="mb-4 rounded-[1.5rem] border border-sidebar-border/80 bg-sidebar-accent/35 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+              <p className="text-[10px] uppercase tracking-[0.24em] text-muted-foreground">Workspace</p>
+              <p className="mt-2 text-sm font-medium text-sidebar-foreground">
+                {ROLE_DISPLAY_NAMES[userRole] || userRole} console
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">Navigation is tailored to your role and current permissions.</p>
+            </div>
+          )}
+          <ul className="space-y-1.5">
             {navItems.map((item) => {
               const isActive =
                 location.pathname === item.path ||
@@ -394,8 +417,8 @@ const Sidebar = () => {
               );
             })}
           </ul>
-          <div className="my-2 h-px bg-sidebar-border" />
-          <ul className="space-y-0.5">
+          <div className="my-4 h-px bg-sidebar-border/80" />
+          <ul className="space-y-1.5">
             {isAdminOrSuperadmin && (
               <li>
                 {renderNavLink('/developer', 'Settings', FaCog, location.pathname === '/developer')}
@@ -403,61 +426,95 @@ const Sidebar = () => {
             )}
           </ul>
         </nav>
-        <div className="shrink-0 border-t border-sidebar-border p-2">
+        <div className="shrink-0 border-t border-sidebar-border/80 bg-sidebar/70 p-3 backdrop-blur-xl">
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className={`group mb-1 flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${!expanded ? 'justify-center' : ''}`}
+            className={`group relative mb-2 flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-3 text-sm text-sidebar-foreground transition-all duration-200 hover:border-sidebar-border hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground ${!expanded ? 'justify-center px-0' : ''}`}
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? <FaSun className="h-4 w-4 shrink-0" /> : <FaMoon className="h-4 w-4 shrink-0" />}
             {expanded && <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>}
             {!expanded && (
-              <span className="absolute left-full z-50 ml-2 rounded-md border border-sidebar-border bg-popover px-2 py-1.5 text-xs text-popover-foreground shadow-md opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none whitespace-nowrap">
+              <span className="pointer-events-none absolute left-full z-50 ml-3 whitespace-nowrap rounded-xl border border-sidebar-border bg-popover/95 px-3 py-2 text-xs text-popover-foreground shadow-panel opacity-0 transition-opacity group-hover:opacity-100">
                 {theme === 'dark' ? 'Light mode' : 'Dark mode'}
               </span>
             )}
           </button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className={`group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${!expanded ? 'justify-center' : ''}`}
-                title="Account"
-                aria-label="Account menu"
-              >
-                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${roleColor} ${roleBgColor}`}>
-                  <RoleIcon className="h-4 w-4" />
+          <MenuTrigger>
+            <AriaButton
+              className={`group flex w-full items-center gap-3 rounded-2xl border border-transparent px-3 py-3 text-sidebar-foreground transition-all duration-200 hover:border-sidebar-border hover:bg-sidebar-accent/70 hover:text-sidebar-accent-foreground ${!expanded ? 'justify-center px-0' : ''}`}
+              aria-label="Account menu"
+            >
+              <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-sidebar-border/80 ${roleColor} ${roleBgColor}`}>
+                <RoleIcon className="h-4 w-4" />
+              </div>
+              {expanded && (
+                <div className="min-w-0 flex-1 truncate text-left">
+                  <p className="truncate text-xs font-medium">
+                    {ROLE_DISPLAY_NAMES[userRole] || userRole}
+                    {profile?.isGuest && (
+                      <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-[9px] font-normal">
+                        Guest
+                      </Badge>
+                    )}
+                  </p>
+                  <p className="truncate text-[10px] text-muted-foreground">
+                    {profile?.name || profile?.displayName || 'User'}
+                  </p>
                 </div>
-                {expanded && (
-                  <div className="min-w-0 flex-1 truncate text-left">
-                    <p className="text-xs font-medium truncate">
-                      {ROLE_DISPLAY_NAMES[userRole] || userRole}
-                      {profile?.isGuest && (
-                        <Badge variant="secondary" className="text-[9px] px-1.5 py-0 font-normal ml-1">
-                          Guest
-                        </Badge>
-                      )}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground truncate">
-                      {profile?.name || profile?.displayName || 'User'}
-                    </p>
-                  </div>
-                )}
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align={expanded ? 'start' : 'center'} side="right" className="w-56">
-              <DropdownMenuItem asChild>
-                <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+              )}
+            </AriaButton>
+            <Popover
+              placement="right top"
+              className="w-64 rounded-[1.5rem] border border-border/80 bg-card/95 p-2 shadow-panel backdrop-blur-2xl"
+            >
+              <Menu
+                aria-label="Account actions"
+                className="space-y-1 outline-none"
+                onAction={(key) => {
+                  if (key === 'profile') {
+                    navigate('/profile');
+                    return;
+                  }
+                  if (key === 'logout') {
+                    void handleLogout();
+                  }
+                }}
+              >
+                <MenuItem
+                  id="profile"
+                  className={({ isFocused }) =>
+                    cn(
+                      'flex cursor-default items-center gap-3 rounded-2xl px-3 py-3 outline-none transition-colors',
+                      isFocused ? 'bg-accent/70 text-foreground' : 'text-foreground'
+                    )
+                  }
+                >
                   <FaUser className="h-4 w-4" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive">
-                <FaSignOutAlt className="h-4 w-4" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">Profile</p>
+                    <p className="text-xs text-muted-foreground">Manage your account and settings</p>
+                  </div>
+                </MenuItem>
+                <MenuItem
+                  id="logout"
+                  className={({ isFocused }) =>
+                    cn(
+                      'flex cursor-default items-center gap-3 rounded-2xl px-3 py-3 outline-none transition-colors',
+                      isFocused ? 'bg-destructive/12 text-destructive' : 'text-destructive'
+                    )
+                  }
+                >
+                  <FaSignOutAlt className="h-4 w-4" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">Logout</p>
+                    <p className="text-xs text-muted-foreground">End the current session securely</p>
+                  </div>
+                </MenuItem>
+              </Menu>
+            </Popover>
+          </MenuTrigger>
         </div>
       </div>
     );
@@ -469,13 +526,13 @@ const Sidebar = () => {
       <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="lg:hidden fixed top-4 left-4 z-50 flex h-9 w-9 items-center justify-center rounded-md border border-sidebar-border bg-sidebar text-sidebar-foreground hover:bg-sidebar-accent"
+          className="fixed left-4 top-4 z-50 flex h-11 w-11 items-center justify-center rounded-2xl border border-sidebar-border/80 bg-sidebar/90 text-sidebar-foreground shadow-card backdrop-blur-xl transition-colors hover:bg-sidebar-accent lg:hidden"
           aria-label="Open menu"
         >
           <FaBars className="h-4 w-4" />
         </button>
-        <SheetContent side="left" className="w-sidebar border-sidebar-border bg-sidebar p-0">
-          <div className="flex h-14 items-center border-b border-sidebar-border px-4">
+        <SheetContent side="left" className="w-sidebar border-sidebar-border/80 bg-sidebar/95 p-0">
+          <div className="flex h-16 items-center border-b border-sidebar-border/80 px-4">
             <span className="font-semibold" style={in3dFontStyle}>
               <span className="text-sidebar-foreground">In3D</span>
               <span className="text-sidebar-primary">.ai</span>
@@ -496,14 +553,14 @@ const Sidebar = () => {
 
       {/* Desktop: Icon sidebar */}
       <aside
-        className="fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-200 ease-linear lg:flex"
+        className="fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-sidebar-border/80 bg-sidebar/92 backdrop-blur-2xl transition-[width] duration-300 ease-out lg:flex"
         style={{ width: sidebarWidth }}
       >
         <NavContent />
         {/* Rail: collapse toggle (shadcn-style) */}
         <button
           onClick={toggleCollapse}
-          className="absolute -right-3 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full border border-sidebar-border bg-sidebar shadow-sm text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors"
+          className="absolute -right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-sidebar-border/80 bg-sidebar shadow-card text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? (

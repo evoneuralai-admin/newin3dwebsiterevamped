@@ -1,5 +1,6 @@
 import { OrbitControls } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useRef, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
@@ -369,6 +370,25 @@ const ConditionalCanvas = ({ children, backgroundSkybox }) => {
   );
 };
 
+const RouteViewport = ({ children }) => {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+        className="relative flex-1"
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
 function checkRequiredEnvVars() {
   const required = [
     // Payment system removed - VITE_RAZORPAY_KEY_ID no longer required
@@ -446,7 +466,7 @@ function App() {
                 {/* Main content area – same background as sidebar for homogeneous look */}
                 <div className="relative flex-1 flex flex-col min-h-screen bg-background overflow-hidden">
                 <main className="flex-1 bg-background">
-                  <div className="">
+                  <RouteViewport>
                     <Routes>
                       {/* Public routes - accessible to all users */}
                       <Route path="/login" element={<Login />} />
@@ -759,7 +779,7 @@ function App() {
                       {/* Redirect unknown routes to home */}
                       <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
-                  </div>
+                  </RouteViewport>
                 </main>
 
                 {/* Footer - minimal footer everywhere */}
@@ -817,7 +837,7 @@ function App() {
                 {/* Main content area – same background as sidebar for homogeneous look */}
                 <div className="relative flex-1 flex flex-col min-h-screen bg-background overflow-hidden">
                 <main className="flex-1 bg-background">
-                  <div className="">
+                  <RouteViewport>
                     <Routes>
                       {/* Public routes - accessible to all users */}
                       <Route path="/login" element={<Login />} />
@@ -1235,7 +1255,7 @@ function App() {
                       {/* Redirect unknown routes to home */}
                       <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
-                  </div>
+                  </RouteViewport>
                 </main>
 
                 {/* Footer - minimal footer everywhere */}
