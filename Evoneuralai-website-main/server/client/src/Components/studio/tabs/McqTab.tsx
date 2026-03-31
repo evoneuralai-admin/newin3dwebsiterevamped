@@ -1,0 +1,552 @@
+/**
+ * McqTab - MCQ Management for Chapter
+ * 
+ * Data Source: chapter_mcqs collection (NEW Firestore schema)
+ * This component now fetches MCQs from the chapter_mcqs collection
+ * instead of legacy inline storage or subcollections.
+ */
+
+import { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
+import { MCQ, MCQFormState, ChapterMCQ, LanguageCode } from '../../../types/curriculum';
+import { getChapterMCQsByLanguage } from '../../../lib/firestore/queries';
+import { generateMcqs as generateMcqsApi } from '../../../services/mcqGenerationService';
+import {
+  HelpCircle,
+  Plus,
+  Trash2,
+  GripVertical,
+  ChevronDown,
+  ChevronUp,
+  AlertTriangle,
+  CheckCircle2,
+  Wand2,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+} from 'lucide-react';
+
+interface McqTabProps {
+  mcqs: MCQ[];
+  mcqFormState: MCQFormState[];
+  onMcqsChange: (mcqs: MCQFormState[]) => void;
+  isReadOnly: boolean;
+  flattenedMcqInfo: { hasFlattened: boolean; count: number };
+  onNormalizeMCQs: () => void;
+  chapterId?: string;
+  topicId?: string;
+  language?: LanguageCode;
+  /** For AI generation: learning objective or script text */
+  learningObjective?: string;
+  subject?: string;
+  classLevel?: string;
+  curriculum?: string;
+  /** When false (e.g. Associate role), hide delete question button */
+  canDeleteContent?: boolean;
+}
+
+const difficultyOptions = [
+  { value: 'easy', label: 'Easy', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+  { value: 'medium', label: 'Medium', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+  { value: 'hard', label: 'Hard', color: 'text-red-400 bg-red-500/10 border-red-500/20' },
+];
+
+export const McqTab = ({
+  mcqs,
+  mcqFormState,
+  onMcqsChange,
+  isReadOnly,
+  flattenedMcqInfo,
+  onNormalizeMCQs,
+  chapterId,
+  topicId,
+  language = 'en',
+  learningObjective,
+  subject,
+  classLevel,
+  curriculum,
+  canDeleteContent = true,
+}: McqTabProps) => {
+  const effectiveLang = language ?? 'en';
+  const [expandedMcq, setExpandedMcq] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [localMcqs, setLocalMcqs] = useState<ChapterMCQ[]>([]);
+  
+  // Fetch MCQs from chapter_mcqs collection if chapterId and topicId are provided
+  useEffect(() => {
+    const loadMcqsFromCollection = async () => {
+      if (!chapterId || !topicId) return;
+      
+      setLoading(true);
+      try {
+        const mcqsData = await getChapterMCQsByLanguage(chapterId, topicId, effectiveLang);
+        setLocalMcqs(mcqsData);
+        
+        // Convert ChapterMCQ to MCQFormState for backwards compatibility
+        if (mcqsData.length > 0 && onMcqsChange) {
+          const formState: MCQFormState[] = mcqsData.map((mcq) => ({
+            id: mcq.id,
+            question: mcq.question,
+            options: mcq.options,
+            correct_option_index: mcq.correct_option_index,
+            explanation: mcq.explanation || '',
+            difficulty: mcq.difficulty,
+            order: mcq.order,
+          }));
+          onMcqsChange(formState);
+        }
+      } catch (error) {
+        console.error(`Error loading ${effectiveLang} MCQs from chapter_mcqs collection:`, error);
+        toast.error(`Failed to load ${effectiveLang === 'en' ? 'English' : 'Hindi'} MCQs`);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    // Only fetch if props indicate direct loading is needed
+    if (chapterId && topicId && mcqs.length === 0) {
+      loadMcqsFromCollection();
+    }
+  }, [chapterId, topicId, effectiveLang]);
+  
+  const handleRefresh = async () => {
+    if (!chapterId || !topicId) return;
+    
+    setLoading(true);
+    try {
+      const mcqsData = await getChapterMCQsByLanguage(chapterId, topicId, effectiveLang);
+      setLocalMcqs(mcqsData);
+      toast.success(`${effectiveLang === 'en' ? 'English' : 'Hindi'} MCQs refreshed`);
+    } catch (error) {
+      console.error(`Error refreshing ${effectiveLang} MCQs:`, error);
+      toast.error(`Failed to refresh ${effectiveLang === 'en' ? 'English' : 'Hindi'} MCQs`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateWithAi = async () => {
+    if (!chapterId || !topicId || isReadOnly) return;
+    if (!learningObjective && !subject) {
+      toast.error('Add a learning objective in the Overview tab (or ensure subject is set) to generate MCQs with AI.');
+      return;
+    }
+    setGenerating(true);
+    try {
+      const { mcqs: generated } = await generateMcqsApi({
+        chapterId,
+        topicId,
+        subject,
+        classLevel,
+        curriculum,
+        learningObjective: learningObjective?.trim() || (subject ? `Assess key concepts in ${subject}` : undefined),
+        count: 5,
+        language: effectiveLang,
+      });
+      const newFormState: MCQFormState[] = generated.map((m) => ({
+        question: m.question,
+        options: m.options?.length ? m.options : ['', '', '', ''],
+        correct_option_index: m.correct_option_index ?? 0,
+        explanation: m.explanation ?? '',
+        difficulty: m.difficulty ?? 'medium',
+        _isNew: true,
+      }));
+      onMcqsChange([...mcqFormState.filter((m) => !m._isDeleted), ...newFormState]);
+      toast.success(`Generated ${generated.length} MCQs. Review and save to add them to the lesson.`);
+      if (newFormState.length > 0) {
+        setExpandedMcq(`new-${mcqFormState.length}`);
+      }
+    } catch (err) {
+      console.error('Generate MCQs error:', err);
+      const msg =
+        err instanceof Error
+          ? err.message
+          : (err as { response?: { data?: { error?: string; message?: string } } })?.response?.data?.error ??
+            (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+            'Failed to generate MCQs';
+      toast.error(msg);
+    } finally {
+      setGenerating(false);
+    }
+  };
+  
+  const handleAddMcq = () => {
+    const newMcq: MCQFormState = {
+      question: '',
+      options: ['', '', '', ''],
+      correct_option_index: 0,
+      explanation: '',
+      difficulty: 'medium',
+      _isNew: true,
+    };
+    onMcqsChange([...mcqFormState, newMcq]);
+    setExpandedMcq(`new-${mcqFormState.length}`);
+  };
+  
+  const handleUpdateMcq = (index: number, field: keyof MCQFormState, value: unknown) => {
+    const updated = [...mcqFormState];
+    updated[index] = { ...updated[index], [field]: value };
+    onMcqsChange(updated);
+  };
+  
+  const handleUpdateOption = (mcqIndex: number, optionIndex: number, value: string) => {
+    const updated = [...mcqFormState];
+    const options = [...(updated[mcqIndex].options || [])];
+    options[optionIndex] = value;
+    updated[mcqIndex] = { ...updated[mcqIndex], options };
+    onMcqsChange(updated);
+  };
+  
+  const handleAddOption = (mcqIndex: number) => {
+    const updated = [...mcqFormState];
+    const options = [...(updated[mcqIndex].options || []), ''];
+    updated[mcqIndex] = { ...updated[mcqIndex], options };
+    onMcqsChange(updated);
+  };
+  
+  const handleRemoveOption = (mcqIndex: number, optionIndex: number) => {
+    const updated = [...mcqFormState];
+    const options = (updated[mcqIndex].options || []).filter((_, i) => i !== optionIndex);
+    // Adjust correct_option_index if needed
+    let correctIndex = updated[mcqIndex].correct_option_index;
+    if (optionIndex < correctIndex) {
+      correctIndex--;
+    } else if (optionIndex === correctIndex) {
+      correctIndex = 0;
+    }
+    updated[mcqIndex] = { ...updated[mcqIndex], options, correct_option_index: correctIndex };
+    onMcqsChange(updated);
+  };
+  
+  const handleDeleteMcq = (index: number) => {
+    const updated = [...mcqFormState];
+    if (updated[index].id) {
+      // Mark existing MCQ as deleted
+      updated[index] = { ...updated[index], _isDeleted: true };
+    } else {
+      // Remove new MCQ entirely
+      updated.splice(index, 1);
+    }
+    onMcqsChange(updated);
+    setExpandedMcq(null);
+  };
+  
+  const toggleExpand = (id: string) => {
+    setExpandedMcq(expandedMcq === id ? null : id);
+  };
+  
+  const visibleMcqs = mcqFormState.filter((m) => !m._isDeleted);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Loading MCQs from chapter_mcqs...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-4xl">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Multiple Choice Questions</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {visibleMcqs.length} {effectiveLang === 'en' ? 'English' : 'Hindi'} question{visibleMcqs.length !== 1 ? 's' : ''} 
+              <span className="text-primary/60 ml-1">(from chapter_mcqs)</span>
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Editing: {effectiveLang === 'en' ? 'English' : 'Hindi'}</span>
+            {chapterId && topicId && (
+              <button
+                onClick={handleRefresh}
+                disabled={loading}
+                className="p-2 text-muted-foreground hover:text-foreground
+                         bg-muted hover:bg-muted/50
+                         rounded-lg border border-border
+                         transition-all duration-200"
+                title="Refresh MCQs"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+            )}
+            {chapterId && topicId && (learningObjective || subject) && (
+              <button
+                onClick={handleGenerateWithAi}
+                disabled={isReadOnly || generating}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium
+                         text-foreground bg-gradient-to-r from-violet-500 to-purple-600
+                         hover:from-violet-400 hover:to-purple-500
+                         rounded-lg shadow-lg shadow-violet-500/25
+                         transition-all duration-200 disabled:opacity-50"
+                title="Generate MCQs from learning objective (AI)"
+              >
+                {generating ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4" />
+                )}
+                Generate with AI
+              </button>
+            )}
+            <button
+              onClick={handleAddMcq}
+              disabled={isReadOnly}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium
+                       text-foreground bg-gradient-to-r from-cyan-500 to-blue-600
+                       hover:from-cyan-400 hover:to-blue-500
+                       rounded-lg shadow-lg shadow-cyan-500/25
+                       transition-all duration-200 disabled:opacity-50"
+            >
+              <Plus className="w-4 h-4" />
+              Add Question
+            </button>
+          </div>
+        </div>
+        
+        {/* Flattened MCQ Warning */}
+        {flattenedMcqInfo.hasFlattened && (
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="text-sm font-medium text-amber-400">
+                  Legacy MCQ Format Detected
+                </h3>
+                <p className="text-xs text-amber-300/70 mt-1">
+                  Found {flattenedMcqInfo.count} MCQs in flattened format. 
+                  Click normalize to convert them to the new structure.
+                </p>
+                <button
+                  onClick={onNormalizeMCQs}
+                  disabled={isReadOnly}
+                  className="mt-3 flex items-center gap-2 px-3 py-1.5 text-xs font-medium
+                           text-amber-400 bg-amber-500/20 hover:bg-amber-500/30
+                           rounded-lg border border-amber-500/30
+                           transition-all duration-200 disabled:opacity-50"
+                >
+                  <Wand2 className="w-3 h-3" />
+                  Normalize MCQs
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* MCQ List */}
+        {visibleMcqs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 
+                        bg-muted/50 rounded-xl border border-border">
+            <HelpCircle className="w-12 h-12 text-muted-foreground mb-3" />
+            <p className="text-muted-foreground">No questions yet</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Click "Add Question" to create the first MCQ
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {visibleMcqs.map((mcq, index) => {
+              const mcqId = mcq.id || `new-${index}`;
+              const isExpanded = expandedMcq === mcqId;
+              const difficultyConfig = difficultyOptions.find((d) => d.value === mcq.difficulty) 
+                || difficultyOptions[1];
+              
+              return (
+                <div
+                  key={mcqId}
+                  className={`bg-muted/50 rounded-xl border transition-all duration-200
+                            ${isExpanded 
+                              ? 'border-cyan-500/30 shadow-lg shadow-cyan-500/5' 
+                              : 'border-border hover:border-border'
+                            }`}
+                >
+                  {/* Header */}
+                  <button
+                    onClick={() => toggleExpand(mcqId)}
+                    className="w-full flex items-center gap-3 p-4 text-left"
+                  >
+                    <GripVertical className="w-4 h-4 text-muted-foreground" />
+                    <span className="w-8 h-8 flex items-center justify-center 
+                                   text-sm font-semibold text-primary 
+                                   bg-primary/10 rounded-lg">
+                      {index + 1}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground truncate">
+                        {mcq.question || 'Untitled Question'}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`px-2 py-0.5 text-[10px] font-medium rounded border
+                                       ${difficultyConfig.color}`}>
+                          {difficultyConfig.label}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {mcq.options?.length || 0} options
+                        </span>
+                      </div>
+                    </div>
+                    {isExpanded ? (
+                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </button>
+                  
+                  {/* Expanded Content */}
+                  {isExpanded && (
+                    <div className="px-4 pb-4 pt-0 space-y-4 border-t border-border mt-0">
+                      <div className="pt-4" />
+                      
+                      {/* Question */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground">Question</label>
+                        <textarea
+                          value={mcq.question}
+                          onChange={(e) => handleUpdateMcq(index, 'question', e.target.value)}
+                          disabled={isReadOnly}
+                          placeholder="Enter the question..."
+                          rows={2}
+                          className="w-full bg-muted border border-border rounded-lg
+                                   px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground
+                                   focus:outline-none focus:ring-2 focus:ring-cyan-500/50 
+                                   disabled:opacity-50 resize-none"
+                        />
+                      </div>
+                      
+                      {/* Options */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-medium text-muted-foreground">Options</label>
+                          <button
+                            onClick={() => handleAddOption(index)}
+                            disabled={isReadOnly || (mcq.options?.length || 0) >= 6}
+                            className="text-xs text-primary hover:text-primary 
+                                     disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            + Add Option
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          {(() => {
+                            // Ensure options array exists and has at least 4 items for display
+                            const options = mcq.options || [];
+                            const displayOptions = options.length >= 4 
+                              ? options 
+                              : [...options, ...Array(4 - options.length).fill('')];
+                            
+                            return displayOptions.map((option, optIndex) => (
+                            <div key={optIndex} className="flex items-center gap-2">
+                              <button
+                                onClick={() => handleUpdateMcq(index, 'correct_option_index', optIndex)}
+                                disabled={isReadOnly}
+                                className={`w-6 h-6 rounded-full flex items-center justify-center
+                                         transition-all duration-200 flex-shrink-0
+                                         ${mcq.correct_option_index === optIndex
+                                           ? 'bg-emerald-500 text-foreground'
+                                           : 'bg-muted text-muted-foreground hover:bg-muted'
+                                         }`}
+                              >
+                                {mcq.correct_option_index === optIndex && (
+                                  <CheckCircle2 className="w-4 h-4" />
+                                )}
+                              </button>
+                              <input
+                                type="text"
+                                value={option || ''}
+                                onChange={(e) => handleUpdateOption(index, optIndex, e.target.value)}
+                                disabled={isReadOnly}
+                                placeholder={`Option ${optIndex + 1}`}
+                                className="flex-1 bg-muted border border-border rounded-lg
+                                         px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground
+                                         focus:outline-none focus:ring-2 focus:ring-cyan-500/50 
+                                         disabled:opacity-50"
+                              />
+                              {(displayOptions.length > 2 && optIndex < options.length) && (
+                                <button
+                                  onClick={() => handleRemoveOption(index, optIndex)}
+                                  disabled={isReadOnly}
+                                  className="p-1.5 text-muted-foreground hover:text-red-400 
+                                           rounded transition-colors disabled:opacity-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                            ));
+                          })()}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground">
+                          Click the circle to mark the correct answer
+                        </p>
+                      </div>
+                      
+                      {/* Explanation */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground">Explanation</label>
+                        <textarea
+                          value={mcq.explanation}
+                          onChange={(e) => handleUpdateMcq(index, 'explanation', e.target.value)}
+                          disabled={isReadOnly}
+                          placeholder="Explain why this is the correct answer..."
+                          rows={2}
+                          className="w-full bg-muted border border-border rounded-lg
+                                   px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground
+                                   focus:outline-none focus:ring-2 focus:ring-cyan-500/50 
+                                   disabled:opacity-50 resize-none"
+                        />
+                      </div>
+                      
+                      {/* Difficulty */}
+                      <div className="space-y-2">
+                        <label className="text-xs font-medium text-muted-foreground">Difficulty</label>
+                        <div className="flex gap-2">
+                          {difficultyOptions.map((diff) => (
+                            <button
+                              key={diff.value}
+                              onClick={() => handleUpdateMcq(index, 'difficulty', diff.value)}
+                              disabled={isReadOnly}
+                              className={`px-3 py-1.5 text-xs font-medium rounded-lg border
+                                       transition-all duration-200 disabled:opacity-50
+                                       ${mcq.difficulty === diff.value
+                                         ? diff.color
+                                         : 'text-muted-foreground bg-muted border-border hover:bg-muted/50'
+                                       }`}
+                            >
+                              {diff.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Delete Button - hidden for Associate (cannot delete content) */}
+                      {canDeleteContent && (
+                        <div className="pt-2 border-t border-border">
+                          <button
+                            onClick={() => handleDeleteMcq(index)}
+                            disabled={isReadOnly}
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium
+                                     text-red-400 hover:text-red-300 hover:bg-red-500/10
+                                     rounded-lg transition-all duration-200 disabled:opacity-50"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Delete Question
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};

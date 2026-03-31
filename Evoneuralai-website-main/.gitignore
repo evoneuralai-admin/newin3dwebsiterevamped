@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+**/node_modules/
+server/node_modules/
+client/node_modules/
+
+# Build outputs
+dist/
+build/
+**/dist/
+**/build/
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.in3dev
+.env.backup
+.env.backup2
+.secret-temp
+.env.*.local
+# But allow template files
+!.env.template
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Cache
+.cache/
+.npm/
+.yarn/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Firebase service account keys (do not commit)
+serviceaccount.json
+*-firebase-adminsdk-*.json
+
+# Firebase local state
+.firebase/
+
+# Misc
+*.pem
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+function-deploy-*.zip

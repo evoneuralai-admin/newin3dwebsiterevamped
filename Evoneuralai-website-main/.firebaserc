@@ -1,0 +1,24 @@
+{
+  "projects": {
+    "default": "in3devoneuralai",
+    "in3dev": "in3devoneuralai",
+    "lexrn1": "lexrn1"
+  },
+  "targets": {
+    "learnxr-evoneuralai": {
+      "hosting": {
+        "altiereality": [
+          "learnxr-evoneuralai"
+        ]
+      }
+    },
+    "lexrn1": {
+      "hosting": {
+        "altiereality": [
+          "altiereality"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
