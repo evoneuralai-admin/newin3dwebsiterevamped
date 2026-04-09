@@ -18,6 +18,18 @@ export default defineConfig(({ mode }) => {
         },
       },
     ],
+
+    // Inject environment variables at build time
+    define: {
+      'import.meta.env.VITE_API_URL': JSON.stringify('/api'),
+      'import.meta.env.VITE_FIREBASE_API_KEY': JSON.stringify('AIzaSyBo9VsJMft4Qqap5oUmQowwbjiMQErloqU'),
+      'import.meta.env.VITE_FIREBASE_AUTH_DOMAIN': JSON.stringify('in3devoneuralai.firebaseapp.com'),
+      'import.meta.env.VITE_FIREBASE_PROJECT_ID': JSON.stringify('in3devoneuralai'),
+      'import.meta.env.VITE_FIREBASE_STORAGE_BUCKET': JSON.stringify('in3devoneuralai.firebasestorage.app'),
+      'import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID': JSON.stringify('708037023303'),
+      'import.meta.env.VITE_FIREBASE_APP_ID': JSON.stringify('1:708037023303:web:f0d5b319b05aa119288362'),
+      'import.meta.env.VITE_FIREBASE_MEASUREMENT_ID': JSON.stringify('G-FNENMQ3BMF'),
+    },
     
     // Base public path when served in production
     base: '/',
@@ -48,40 +60,16 @@ export default defineConfig(({ mode }) => {
             vendor: ['react', 'react-dom', 'react-router-dom'],
             three: ['three', '@react-three/fiber', '@react-three/drei'],
           },
-          // Add timestamp to chunk names for cache busting
-          chunkFileNames: (chunkInfo) => {
-            const timestamp = Date.now();
-            return `assets/[name]-${timestamp}.[hash].js`;
-          },
-          entryFileNames: (chunkInfo) => {
-            const timestamp = Date.now();
-            return `assets/[name]-${timestamp}.[hash].js`;
-          },
-          assetFileNames: (assetInfo) => {
-            const timestamp = Date.now();
-            return `assets/[name]-${timestamp}.[hash].[ext]`;
-          },
+          // Simplify chunk names to avoid non-determinism during parallel rendering
+          chunkFileNames: 'assets/[name].[hash].js',
+          entryFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]',
         },
       },
       // Optimize chunk size warnings
       chunkSizeWarningLimit: 1000,
-      // Enable minification - keep console.error/console.warn for debugging
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          // Keep console.error and console.warn so errors are visible in production
-          pure_funcs: ['console.log', 'console.info', 'console.debug'],
-          drop_debugger: true,
-          keep_classnames: true,
-          keep_fnames: true,
-          passes: 1,
-        },
-        mangle: false,
-        format: {
-          comments: false,
-          beautify: false,
-        },
-      },
+      // Use esbuild for faster and more stable minification compared to terser
+      minify: 'esbuild',
     },
 
     // Resolve configuration
