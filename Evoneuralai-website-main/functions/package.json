@@ -29,7 +29,6 @@
     "pdf-to-img": "^5.0.0",
     "razorpay": "^2.9.6",
     "rss-parser": "^3.13.0",
-    "server": "file:..",
     "sharp": "^0.33.5"
   },
   "devDependencies": {

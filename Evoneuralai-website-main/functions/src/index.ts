@@ -24,10 +24,10 @@ const blockadelabsApiKey = defineSecret("BLOCKADE_API_KEY");
 const meshyApiKey = defineSecret("MESHY_API_KEY");
 // Razorpay secrets removed - payment system not needed
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
-const openaiAvatarApiKey = defineSecret("OPENAI_AVATAR_API_KEY");
-const linkedinAccessToken = defineSecret("LINKEDIN_ACCESS_TOKEN");
-const linkedinCompanyURN = defineSecret("LINKEDIN_COMPANY_URN");
-const streetViewApiKey = defineSecret("GOOGLE_STREETVIEW_API_KEY");
+// const openaiAvatarApiKey = defineSecret("OPENAI_AVATAR_API_KEY");
+// const linkedinAccessToken = defineSecret("LINKEDIN_ACCESS_TOKEN");
+// const linkedinCompanyURN = defineSecret("LINKEDIN_COMPANY_URN");
+// const streetViewApiKey = defineSecret("GOOGLE_STREETVIEW_API_KEY");
 // Lazy Express app creation - only initialize when function is called
 // NOTE: Do NOT recreate the Express app per request — that causes repeated module loads
 // and can balloon memory usage (which surfaces as intermittent 500s and missing CORS headers
@@ -212,7 +212,7 @@ export const api = onRequest(
     cors: true, // Allow all origins (handled more specifically in Express CORS middleware)
     region: 'us-central1',
     invoker: 'public',
-    secrets: [blockadelabsApiKey, meshyApiKey, openaiApiKey, openaiAvatarApiKey, linkedinAccessToken, linkedinCompanyURN, streetViewApiKey]
+    secrets: [blockadelabsApiKey, meshyApiKey, openaiApiKey/*, openaiAvatarApiKey, linkedinAccessToken, linkedinCompanyURN, streetViewApiKey*/]
   },
   (req, res) => {
   // Load secrets and set as environment variables
@@ -253,6 +253,7 @@ export const api = onRequest(
       console.error('Error accessing OPENAI_API_KEY:', err?.message || err);
     }
     
+    /*
     try {
       openaiAvatarKey = openaiAvatarApiKey.value();
       // Clean the API key - remove any whitespace, newlines, or "Bearer " prefix
@@ -262,7 +263,9 @@ export const api = onRequest(
     } catch (err: any) {
       console.warn('⚠️ OPENAI_AVATAR_API_KEY not found, will fallback to OPENAI_API_KEY:', err?.message || err);
     }
+    */
     
+    /*
     try {
       linkedinToken = linkedinAccessToken.value();
       if (linkedinToken) {
@@ -280,7 +283,9 @@ export const api = onRequest(
     } catch (err: any) {
       console.warn('⚠️ LINKEDIN_COMPANY_URN not found:', err?.message || err);
     }
+    */
 
+    /*
     try {
       streetViewKey = streetViewApiKey.value();
       if (streetViewKey) {
@@ -289,6 +294,7 @@ export const api = onRequest(
     } catch (err: any) {
       console.warn('⚠️ GOOGLE_STREETVIEW_API_KEY not found in secrets:', err?.message || err);
     }
+    */
 
     // Set in process.env for routes that use getSecret()
     if (blockadeKey) process.env.BLOCKADE_API_KEY = blockadeKey;

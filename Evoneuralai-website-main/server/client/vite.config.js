@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => {
 
     // Build configuration
     build: {
+      modulePreload: false,
       outDir: 'dist',
       assetsDir: 'assets',
       sourcemap: mode !== 'production', // Disable in prod to avoid exposing source

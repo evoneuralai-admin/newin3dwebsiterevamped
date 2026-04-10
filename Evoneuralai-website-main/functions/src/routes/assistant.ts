@@ -27,15 +27,15 @@ const getAssistantService = (useAvatarKey: boolean = false) => {
     // ALWAYS create a new instance to ensure we use the latest API key from process.env
     // This is critical because secrets are loaded per-request in the function handler
     try {
-      console.log('🔧 Initializing Avatar Assistant Service with OPENAI_AVATAR_API_KEY...');
-      const apiKey = process.env.OPENAI_AVATAR_API_KEY;
-      console.log('🔑 OPENAI_AVATAR_API_KEY available:', !!apiKey, apiKey ? `(length: ${apiKey.length})` : '');
+      console.log('🔧 Initializing Avatar Assistant Service with OPENAI_AVATAR_API_KEY or OPENAI_API_KEY...');
+      const apiKey = process.env.OPENAI_AVATAR_API_KEY || process.env.OPENAI_API_KEY;
+      console.log('🔑 API Key available:', !!apiKey, apiKey ? `(length: ${apiKey.length})` : '');
       if (!apiKey) {
-        throw new Error('OPENAI_AVATAR_API_KEY is not set in environment variables');
+        throw new Error('Neither OPENAI_AVATAR_API_KEY nor OPENAI_API_KEY is set in environment variables');
       }
       // Always create new instance - don't reuse cached one
       const service = new OpenAIAssistantService(true);
-      console.log('✅ Avatar Assistant Service initialized successfully with OPENAI_AVATAR_API_KEY');
+      console.log('✅ Avatar Assistant Service initialized successfully');
       return service;
     } catch (error: any) {
       console.error('❌ Failed to initialize Avatar Assistant Service:', error.message);
